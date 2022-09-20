@@ -2,14 +2,7 @@
   <div>
     <main class="w-screen h-screen">
       <v-map class="w-full h-full" :options="state.map" @loaded="onMapLoaded" />
-      <div id="menu" class="">
-        <input
-          id="satellite-v9"
-          type="radio"
-          name="rtoggle"
-          value="satellite"
-          checked="checked"
-        />
+      <div>
         <!-- See a list of Mapbox-hosted public styles at -->
         <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
         <label for="satellite-v9">satellite</label>
@@ -60,69 +53,6 @@ const state = reactive({
 //   zoom: 11,
 //   //     maxZoom: 22,
 // });
-var value = state.data;
-var geojson = {
-  type: "FeatureCollection",
-  features: [
-    {
-      type: "Feature",
-      properties: { title: "my home ", description: "back to home " },
-      geometry: {
-        type: "Point",
-        coordinates: [444.04931277036667, 26.266912177018096],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { title: "villege", description: "uttar pradesh" },
-      geometry: {
-        type: "Point",
-        coordinates: [444.0481862425804, 26.266565820518633],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { title: "market", description: "uttar pradesh." },
-      geometry: {
-        type: "Point",
-        coordinates: [444.0496963262558, 26.266450368122516],
-      },
-    },
-    {
-      type: "Feature",
-      properties: { title: "home", description: "asdfghjhjkl." },
-      geometry: {
-        type: "Point",
-        coordinates: [444.04630064964294, 26.23214630354235],
-      },
-    },
-  ],
-};
-for (let data in state.data) {
-  console.log(data);
-}
-
-function onMapLoaded(map: mapboxgl.Map) {
-  console.log("map loaded");
-  // getGisData();
-  console.log(state.data);
-  //new mapboxgl.Marker().setLngLat([444.0463, 26.2321]).addTo(map);
-  getGisData();
-  async function getGisData() {
-    state.data = await $fetch("http://localhost:3001/gisdata");
-    console.log("data: ", state.data);
-    for (const feature of state.data) {
-      // create a HTML element for each feature
-      const el = document.createElement("div");
-      el.className = "marker";
-      console.log("data from databse" + feature.location);
-      // make a marker for each feature and add to the map
-      new mapboxgl.Marker(el)
-        .setLngLat(feature.location.coordinates)
-        .addTo(map);
-    }
-  }
-}
 </script>
 <style>
 .w-screen {
@@ -137,14 +67,7 @@ function onMapLoaded(map: mapboxgl.Map) {
 .w-full {
   width: 100%;
 }
-.marker {
-  background-image: url("http://localhost:3000/assets/images/img.jpg");
-  background-size: cover;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  cursor: pointer;
-}
+
 .mapboxgl-popup {
   max-width: 200px;
 }
