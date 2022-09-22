@@ -34,6 +34,9 @@
 import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import VMap from "v-mapbox";
 import mapboxgl from "mapbox-gl";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+
 mapboxgl.accessToken =
   "pk.eyJ1Ijoic29jaWFsZXhwbG9yZXIiLCJhIjoiREFQbXBISSJ9.dwFTwfSaWsHvktHrRtpydQ";
 //const data: string;
@@ -51,6 +54,7 @@ const state = reactive({
   },
   data: [],
 });
+
 // mapboxgl.accessToken =
 //   "pk.eyJ1Ijoic29jaWFsZXhwbG9yZXIiLCJhIjoiREFQbXBISSJ9.dwFTwfSaWsHvktHrRtpydQ";
 // var map = new mapboxgl.Map({
@@ -121,6 +125,52 @@ function onMapLoaded(map: mapboxgl.Map) {
         .setLngLat(feature.location.coordinates)
         .addTo(map);
     }
+  }
+
+  var Draw = new MapboxDraw();
+
+  map.addControl(Draw, "top-left");
+
+  const layerList = document.getElementById("menu");
+  const inputs = layerList.getElementsByTagName("input");
+  for (const input of inputs) {
+    input.onclick = (layer) => {
+      const layerId = layer.target.id;
+      map.setStyle("mapbox://styles/mapbox/" + layerId);
+    };
+  }
+
+  polygon();
+  async function polygon() {
+    state.polygon = await $fetch("http://localhost:3001/gisdata/polygon");
+    console.log(state.polygon);
+    console.log("data: ", state.polygon);
+    const featureCollection = {
+      type: "geojson",
+      data: {
+        type: "FeatureCollection",
+        features: [],
+      },
+    };
+    featureCollection.data.features = state.polygon.map((element) => {
+      return {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: element.polygon.coordinates,
+        },
+      };
+    });
+    map.addSource("polygon-data", featureCollection);
+    map.addLayer({
+      id: "park-boundary",
+      type: "fill",
+      source: "polygon-data",
+      paint: {
+        "fill-color": "#FF0000",
+        "fill-opacity": 0.4,
+      },
+    });
   }
 }
 </script>

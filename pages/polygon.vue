@@ -1,98 +1,117 @@
 <template>
-  <div>
-    <main class="w-screen h-screen">
-      <v-map class="w-full h-full" :options="state.map" @loaded="onMapLoaded" />
-      <div>
-        <!-- See a list of Mapbox-hosted public styles at -->
-        <!-- https://docs.mapbox.com/api/maps/styles/#mapbox-styles -->
-        <label for="satellite-v9">satellite</label>
-        <input id="light-v10" type="radio" name="rtoggle" value="light" />
-        <label for="light-v10">light</label>
-        <input id="dark-v10" type="radio" name="rtoggle" value="dark" />
-        <label for="dark-v10">dark</label>
-        <input id="streets-v11" type="radio" name="rtoggle" value="streets" />
-        <label for="streets-v11">streets</label>
-        <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
-        <label for="outdoors-v11">outdoors</label>
-      </div>
-    </main>
-    <!-- <p>{{ state.data }}</p>
-    <p>below data come from value variable</p>
-    <p>{{ value }}</p> -->
-  </div>
+  <!-- <input type="text" id="search" placeholder="Enter The Pin " /> -->
+  <label for="" id="choose">Choose the satellite Mode:-</label>
+  <select id="layer-change">
+    <option selected value="mapbox://styles/mapbox/streets-v11">Street</option>
+    <option value="mapbox://styles/mapbox/outdoors-v11">outdoors</option>
+    <option value="mapbox://styles/mapbox/light-v10">light</option>
+    <option value="mapbox://styles/mapbox/dark-v10">dark</option>
+    <option value="mapbox://styles/mapbox/satellite-v9">satellite</option>
+    <option value="mapbox://styles/mapbox/satellite-streets-v11">
+      satellite-streets
+    </option>
+    <option value="mapbox://styles/mapbox/navigation-day-v1">
+      navigation-day
+    </option>
+    <option value="mapbox://styles/mapbox/navigation-night-v1">
+      navigation-night
+    </option>
+  </select>
+  <main class="w-screen h-screen">
+    <v-map class="w-full h-full" :options="state.map" @loaded="mapMark" />
+  </main>
 </template>
 <script setup lang="ts">
-// import "mapbox-gl/dist/mapbox-gl.css";
-// import "v-mapbox/dist/v-mapbox.css";
-import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
 import VMap from "v-mapbox";
-import mapboxgl from "mapbox-gl";
+import { reactive } from "vue";
+import mapboxgl, { Marker } from "mapbox-gl";
+import MapboxGeocoder from "@mapbox/mapbox-gl-geocoder";
+// export default {
+//   name: "App",
+//   components: {
+//     VMap,
+//   },
 mapboxgl.accessToken =
-  "pk.eyJ1Ijoic29jaWFsZXhwbG9yZXIiLCJhIjoiREFQbXBISSJ9.dwFTwfSaWsHvktHrRtpydQ";
-//const data: string;
+  "pk.eyJ1Ijoia29tYWxraWxsZWRhciIsImEiOiJjbDZnY3ZhY2ExdTJ4M2lxbGtid294ODljIn0._5sPomlX5lhlubBQTXVAww";
 const state = reactive({
   map: {
     container: "map",
     // accessToken:
-    //   "pk.eyJ1Ijoic29jaWFsZXhwbG9yZXIiLCJhIjoiREFQbXBISSJ9.dwFTwfSaWsHvktHrRtpydQ",
-    //style: "mapbox://styles/mapbox/streets-v11?optimize=true",
-    style: "mapbox://styles/mapbox/satellite-streets-v11",
+    //   "pk.eyJ1Ijoia29tYWxraWxsZWRhciIsImEiOiJjbDZnY3ZhY2ExdTJ4M2lxbGtid294ODljIn0._5sPomlX5lhlubBQTXVAww",
+    style: "mapbox://styles/mapbox/streets-v11?optimize=true",
     // style: "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json",
-    center: [444.04931277036667, 26.266912177018096] as number[],
+    center: [73.8567, 18.5204],
     zoom: 11,
-    maxZoom: 22,
-  },
-  data: [],
+    maxZoom: 12,
+    crossSourceCollisions: false,
+    failIfMajorPerformanceCaveat: false,
+    attributionControl: false,
+    preserveDrawingBuffer: true,
+    hash: false,
+    minPitch: 0,
+    maxPitch: 60,
+  } as mapboxgl.MapboxOptions,
 });
-map.on("load", () => {
-  // Add a data source containing GeoJSON data.
+function mapMark(map) {
+  map.on("click", (e) => {
+    console.log("I am clicked");
+    new mapboxgl.Marker({
+      draggable: true,
+      color: getRandomColor(),
+    })
+      .setLngLat([e.lngLat.lng, e.lngLat.lat])
+      .addTo(map);
+  });
+  const setStyle: any = document.getElementById("layer-change");
+  setStyle.addEventListener("change", (event) => {
+    console.log(event);
+    map.setStyle(event.target.value);
+  });
+  map.flyTo({
+    center: [73.8567, 18.5204],
+    zoom: 9,
+    speed: 0.4,
+    curve: 1,
+    easing(t) {
+      return t;
+    },
+  });
+  map.addControl(
+    new MapboxGeocoder({
+      accessToken: mapboxgl.accessToken,
+      mapboxgl: mapboxgl,
+    })
+  );
   map.addSource("maine", {
     type: "geojson",
     data: {
       type: "Feature",
+      properties: {},
       geometry: {
         type: "Polygon",
-        // These coordinates outline Maine.
         coordinates: [
           [
-            [-67.13734, 45.13745],
-            [-66.96466, 44.8097],
-            [-68.03252, 44.3252],
-            [-69.06, 43.98],
-            [-70.11617, 43.68405],
-            [-70.64573, 43.09008],
-            [-70.75102, 43.08003],
-            [-70.79761, 43.21973],
-            [-70.98176, 43.36789],
-            [-70.94416, 43.46633],
-            [-71.08482, 45.30524],
-            [-70.66002, 45.46022],
-            [-70.30495, 45.91479],
-            [-70.00014, 46.69317],
-            [-69.23708, 47.44777],
-            [-68.90478, 47.18479],
-            [-68.2343, 47.35462],
-            [-67.79035, 47.06624],
-            [-67.79141, 45.70258],
-            [-67.13734, 45.13745],
+            [-63.28125, 61.77312286453146],
+            [95.2734375, 72.0739114882038],
+            [66.4453125, 47.27922900257082],
+            [95.2734375, 72.0739114882038],
           ],
         ],
       },
     },
   });
-
-  // Add a new layer to visualize the polygon.
+  //Polygon
   map.addLayer({
     id: "maine",
     type: "fill",
     source: "maine", // reference the data source
     layout: {},
     paint: {
-      "fill-color": "#0080ff", // blue color fill
+      "fill-color": "#0080FF", // blue color fill
       "fill-opacity": 0.5,
     },
   });
-  // Add a black outline around the polygon.
+  //Line
   map.addLayer({
     id: "outline",
     type: "line",
@@ -103,9 +122,68 @@ map.on("load", () => {
       "line-width": 3,
     },
   });
-});
+  //Circle
+  map.addSource("ethnicity", {
+    type: "vector",
+    url: "mapbox://examples.8fgz4egr",
+  });
+  map.addLayer({
+    id: "population",
+    type: "circle",
+    source: "ethnicity",
+    "source-layer": "sf2010",
+    paint: {
+      // Make circles larger as the user zooms from z12 to z22.
+      "circle-radius": {
+        base: 1.75,
+        stops: [
+          [12, 2],
+          [22, 180],
+        ],
+      },
+      // Color circles by ethnicity, using a `match` expression.
+      "circle-color": [
+        "match",
+        ["get", "ethnicity"],
+        "White",
+        "#FBB03B",
+        "Black",
+        "#223B53",
+        "Hispanic",
+        "#E55E5E",
+        "Asian",
+        "#3BB2D0",
+        /* other */ "#ccc",
+      ],
+    },
+  });
+}
+// map.on("load", () => {
+//   console.log("loading");
+// });
+function getRandomColor() {
+  var letters = "0123456789ABCDEF";
+  var color = "#";
+  for (var i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
 </script>
 <style>
+/* @import "~mapbox-gl/dist/mapbox-gl.css";
+@import "~v-mapbox/dist/v-mapbox.css"; */
+html,
+body {
+  margin: 0;
+}
+#app {
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+  color: #2c3e50;
+}
 .w-screen {
   width: 100vw;
 }
@@ -118,18 +196,32 @@ map.on("load", () => {
 .w-full {
   width: 100%;
 }
-
-.mapboxgl-popup {
-  max-width: 200px;
+.marker {
+  background-image: url("assets/images/marker.png");
+  background-size: cover;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
 }
-.mapboxgl-popup-content {
-  text-align: center;
-  font-family: "Open Sans", sans-serif;
+#layer-change {
+  padding: 1px;
+  position: fixed;
+  top: 25px;
+  left: 30px;
+  z-index: 1;
+  margin: 1px;
 }
-#menu {
-  position: absolute;
-  background: #efefef;
-  padding: 10px;
-  font-family: "Open Sans", sans-serif;
+#choose {
+  position: fixed;
+  top: 5px;
+  left: 18px;
+  z-index: 1;
+  color: black;
+}
+#search {
+  position: fixed;
+  top: 35px;
+  left: 20px;
+  z-index: 1;
 }
 </style>
