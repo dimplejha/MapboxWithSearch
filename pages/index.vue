@@ -22,7 +22,7 @@
         <input id="outdoors-v11" type="radio" name="rtoggle" value="outdoors" />
         <label for="outdoors-v11">outdoors</label>
       </div>
-      <!-- Amit -->
+      
     </main>
   </div>
 </template>
@@ -94,7 +94,7 @@ var geojson = {
   ],
 };
 function onMapLoaded(map: mapboxgl.Map) {
-  console.log("amit kumar");
+  
   //new mapboxgl.Marker().setLngLat([444.0463, 26.2321]).addTo(map);
   for (const feature of geojson.features) {
     // create a HTML element for each feature
