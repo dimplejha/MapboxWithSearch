@@ -52,7 +52,6 @@ const state = reactive({
     zoom: 11,
     maxZoom: 22,
   },
-  data: [],
 });
 
 // mapboxgl.accessToken =
@@ -102,9 +101,9 @@ var value = state.data;
 //     },
 //   ],
 //};
-for (let data in state.data) {
-  console.log(data);
-}
+// for (let data in state.data) {
+//   console.log(data);
+// }
 
 function onMapLoaded(map: mapboxgl.Map) {
   console.log("map loaded");
